@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard SMS Gateway</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    textarea, input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    button {
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body onload="cekLogin()">
+  <div class="container">
+    <h2>Kirim SMS Command</h2>
+    <label>Nomor Tujuan (pisahkan dengan koma)</label>
+    <textarea id="nomor" placeholder="08123456789,08129876543"></textarea>
+
+    <label>Pesan Perintah</label>
+    <textarea id="pesan" placeholder="setparam 151:18;66000:3;66006:3;66007:600;66022:2000"></textarea>
+
+    <button onclick="kirimSMS()">Kirim SMS</button>
+    <button onclick="logout()" style="margin-top: 1rem; background:#f44336; color:white">Logout</button>
+  </div>
+
+  <script>
+    function cekLogin() {
+      if (localStorage.getItem("login") !== "true") {
+        window.location.href = "login.html";
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem("login");
+      window.location.href = "login.html";
+    }
+
+    function kirimSMS() {
+      const nomorList = document.getElementById("nomor").value.split(",");
+      const pesan = encodeURIComponent(document.getElementById("pesan").value);
+      const ipGateway = "192.168.1.10"; // Ganti IP sesuai gateway
+
+      nomorList.forEach(nomor => {
+        const url = `http://${ipGateway}:8080/send_sms?number=${nomor.trim()}&message=${pesan}`;
+        fetch(url)
+          .then(res => res.text())
+          .then(res => console.log(`Berhasil ke ${nomor}: ${res}`))
+          .catch(err => console.error(`Gagal ke ${nomor}: ${err}`));
+      });
+
+      alert("SMS dikirim ke semua nomor.");
+    }
+  </script>
+</body>
+</html>
